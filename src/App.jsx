@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+
 import {
   ArrowRight,
   Award,
@@ -14,7 +15,9 @@ import {
   Users,
   X,
 } from "lucide-react";
+
 import { FaLinkedinIn, FaInstagram } from "react-icons/fa";
+
 /* =========================================================
    MAIN WEBSITE IMAGES
    Ye images src/assets/images folder me honi chahiye
@@ -212,6 +215,245 @@ function BrandLogo({ footer = false }) {
   );
 }
 
+function ContactForm() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    organisation: "",
+    subject: "",
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null); // 'success' | 'error'
+  const [errorMessage, setErrorMessage] = useState("");
+ 
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((s) => ({ ...s, [name]: value }));
+  };
+
+  const validate = () => {
+    if (!form.name.trim()) {
+      setErrorMessage("Name is required.");
+      return false;
+    }
+    const emailRe = /^\S+@\S+\.\S+$/;
+    if (!emailRe.test(form.email)) {
+      setErrorMessage("A valid email is required.");
+      return false;
+    }
+    if (!form.message.trim()) {
+      setErrorMessage("Message is required.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setStatus(null);
+    if (!validate()) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/tekshaktifoundation12@gmail.com", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone || "N/A",
+          organisation: form.organisation || "N/A",
+          subject: form.subject || "Website Enquiry",
+          message: form.message,
+          _replyto: form.email,
+          _captcha: "false",
+        }),
+      });
+
+      const result = await response.json();
+
+if (response.ok && (result.success === true || result.success === "true")) {
+  setStatus("success");
+
+  setForm({
+    name: "",
+    email: "",
+    phone: "",
+    organisation: "",
+    subject: "",
+    message: "",
+  });
+
+  setShowSuccessPopup(true);
+}else {
+        throw new Error(
+          result.message ||
+            "Please activate the FormSubmit email link sent to tekshaktifoundation12@gmail.com, then try again."
+        );
+      }
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(err?.message || "Unable to send your message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+  if (!showSuccessPopup) return;
+
+  const popupTimer = setTimeout(() => {
+    setShowSuccessPopup(false);
+    setStatus(null);
+  }, 4000);
+
+  return () => clearTimeout(popupTimer);
+}, [showSuccessPopup]);
+
+  return (
+      <>
+    <motion.form
+      className="contact-form"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={slideRight}
+      onSubmit={handleSubmit}
+    >
+      <h3>Send us a message</h3>
+
+      <div className="form-grid">
+        <label>
+          Name *
+          <input name="name" type="text" value={form.name} onChange={handleChange} required />
+        </label>
+
+        <label>
+          Email *
+          <input name="email" type="email" value={form.email} onChange={handleChange} required />
+        </label>
+
+        <label>
+          Phone
+          <input name="phone" type="tel" value={form.phone} onChange={handleChange} />
+        </label>
+
+        <label>
+          Organisation / Institute
+          <input name="organisation" type="text" value={form.organisation} onChange={handleChange} />
+        </label>
+      </div>
+
+      <label>
+        Subject
+        <input name="subject" type="text" value={form.subject} onChange={handleChange} />
+      </label>
+
+      <label>
+        Message *
+        <textarea name="message" value={form.message} onChange={handleChange} required />
+      </label>
+
+      <button type="submit" disabled={loading}>
+        {loading ? "Sending..." : "Send Message"}
+      </button>
+
+      {status === "error" && (
+        <small className="form-error">{errorMessage || "Unable to send your message. Please try again."}</small>
+      )}
+
+      {status === null && errorMessage && (
+        <small className="form-error">{errorMessage}</small>
+      )}
+
+      <small>
+        By submitting, you agree to be contacted about your enquiry. Your information will not be shared.
+      </small>
+    </motion.form>
+
+    {showSuccessPopup && (
+      <div
+        className="success-popup-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="success-popup-title"
+      >
+        <div className="success-popup">
+          <div className="success-popup-icon">
+            <CheckCircle2 size={38} />
+          </div>
+
+          <h3 id="success-popup-title">
+            Message Sent Successfully!
+          </h3>
+
+          <p>
+            Thank you for contacting Tek-Shakti Foundation. Our team will get
+            back to you soon.
+          </p>
+
+          <button
+            type="button"
+            className="success-popup-close"
+            onClick={() => {
+              setShowSuccessPopup(false);
+              setStatus(null);
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    )}
+  </>
+);
+}
+
+function PartnerCarousel({ logos }) {
+  const [paused, setPaused] = useState(false);
+  const animatedLogos = [...logos, ...logos];
+
+  return (
+    <section className="partners-section">
+      <div className="partners-inner">
+        <div className="section-heading">
+          <SectionLabel>OUR INDUSTRY & KNOWLEDGE PARTNERS</SectionLabel>
+          <p>
+            Trusted collaborators who support Tek-Shakti Foundation’s mission with
+            innovation, education and industry expertise.
+          </p>
+        </div>
+
+        <div
+          className={`partners-carousel ${paused ? "paused" : ""}`}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          <div className="partners-track">
+            {animatedLogos.map((partner, index) => (
+              <div className="partner-slide" key={`${partner.name}-${index}`}>
+                <div className="partner-card">
+                  <img src={partner.image} alt={partner.name} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* =========================================================
    MAIN APP
 ========================================================= */
@@ -321,7 +563,6 @@ function App() {
 
           <div className="hero-bottom-wave" />
         </section>
-
       {/* =====================================================
     ABOUT TEK-SHAKTI FOUNDATION
 ====================================================== */}
@@ -647,38 +888,10 @@ function App() {
 </section>
 
         {/* =====================================================
-            CONTACT BANNER
-        ====================================================== */}
-
-        <section className="contact-banner" id="contact">
-          <div className="container">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{
-                once: true,
-                amount: 0.25,
-              }}
-              variants={fadeUp}
-            >
-              <h2>
-                Let&apos;s create meaningful
-                <span>technology opportunities.</span>
-              </h2>
-
-              <p>
-                Connect with our team for foundation programs, partnerships,
-                events and semiconductor training enquiries.
-              </p>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* =====================================================
             CONTACT FORM
         ====================================================== */}
 
-        <section className="contact-section">
+        <section className="contact-section" id="contact">
           <div className="container contact-layout">
             <motion.div
               className="contact-information"
@@ -735,66 +948,46 @@ function App() {
               <iframe
                 className="contact-map"
                 title="Tek-Shakti Foundation Location"
-                src="https://www.google.com/maps?q=Nagpur,Maharashtra&output=embed"
+                src="https://www.google.com/maps?q=TEK-SHAKTI+FOUNDATION,+Nagpur&output=embed"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
             </motion.div>
 
-            <motion.form
-              className="contact-form"
+            <ContactForm />
+          </div>
+        </section>
+
+        {/* =====================================================
+            CONTACT BANNER
+        ====================================================== */}
+
+       <section className="contact-banner">
+          <div className="container">
+            <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{
                 once: true,
-                amount: 0.2,
+                amount: 0.25,
               }}
-              variants={slideRight}
-              onSubmit={(event) => event.preventDefault()}
+              variants={fadeUp}
             >
-              <h3>Send us a message</h3>
+              <h2>
+                Let&apos;s create meaningful
+                <span>technology opportunities.</span>
+              </h2>
 
-              <div className="form-grid">
-                <label>
-                  Name *
-                  <input type="text" required />
-                </label>
-
-                <label>
-                  Email *
-                  <input type="email" required />
-                </label>
-
-                <label>
-                  Phone
-                  <input type="tel" />
-                </label>
-
-                <label>
-                  Organisation / Institute
-                  <input type="text" />
-                </label>
-              </div>
-
-              <label>
-                Subject
-                <input type="text" />
-              </label>
-
-              <label>
-                Message *
-                <textarea required />
-              </label>
-
-              <button type="submit">Send Message</button>
-
-              <small>
-                By submitting, you agree to be contacted about your enquiry.
-                Your information will not be shared.
-              </small>
-            </motion.form>
+              <p>
+                Connect with our team for foundation programs, partnerships,
+                events and semiconductor training enquiries.
+              </p>
+            </motion.div>
           </div>
         </section>
+
+        <PartnerCarousel logos={partnerLogos} />
+
       </main>
 
       {/* =====================================================
@@ -803,43 +996,54 @@ function App() {
 
       <footer className="footer">
         <div className="container footer-grid">
-          <div className="footer-about">
-            <BrandLogo footer />
+<div className="footer-about">
+  <div className="footer-logo-wrap">
+    <img
+      src={tekshaktiLogo}
+      alt="Tek-Shakti Foundation"
+      className="footer-logo-image"
+    />
+  </div>
 
-<div className="footer-social">
-  <a
-    href="https://linkedin.com/in/tekshakti-foundation-05aa0b311"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Tek-Shakti Foundation LinkedIn"
-  >
-    <FaLinkedinIn />
-  </a>
+  <p>
+    A non-profit initiative empowering learners and communities through
+    technology education, digital skills and semiconductor learning.
+  </p>
 
-  <a
-    href="https://www.instagram.com/tekshakti_foundation?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Tek-Shakti Foundation Instagram"
-  >
-    <FaInstagram />
-  </a>
+  <div className="footer-social">
+    <a
+      className="footer-social-link"
+      href="https://linkedin.com/in/tekshakti-foundation-05aa0b311"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Tek-Shakti Foundation LinkedIn"
+    >
+      <FaLinkedinIn />
+    </a>
+
+    <a
+      className="footer-social-link"
+      href="https://www.instagram.com/tekshakti_foundation"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Tek-Shakti Foundation Instagram"
+    >
+      <FaInstagram />
+    </a>
+  </div>
 </div>
-          </div>
 
           <div className="footer-column">
             <h3>Quick Links</h3>
-
             <a href="#home">Home</a>
             <a href="#about">About Us</a>
-            <a href="#events">Events</a>
+            <a href="/events">Events</a>
             <a href="#training">Training Program</a>
             <a href="#contact">Contact Us</a>
           </div>
 
           <div className="footer-column">
             <h3>Programs</h3>
-
             <span>Foundation Initiatives</span>
             <span>Semiconductor Courses</span>
             <span>Educational Events</span>
@@ -849,11 +1053,8 @@ function App() {
 
           <div className="footer-column">
             <h3>Contact Us</h3>
-
             <span>Nagpur, Maharashtra, India</span>
-
             <a href="tel:+918600418168">+91 86004 18168</a>
-
             <a href="mailto:tekshaktifoundation12@gmail.com">
               tekshaktifoundation12@gmail.com
             </a>
@@ -872,8 +1073,7 @@ function App() {
 
         <div className="container footer-bottom">
           <span>© 2026 Tek-Shakti Foundation. All Rights Reserved.</span>
-
-          <span>Privacy Policy | Terms & Conditions</span>
+          <span>Privacy Policy | Terms &amp; Conditions</span>
         </div>
       </footer>
     </div>
