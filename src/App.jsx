@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 import {
   ArrowRight,
   Award,
   CheckCircle2,
+  ChevronDown,
   Eye,
+  HeartHandshake,
   Mail,
   MapPin,
   Menu,
@@ -34,6 +36,9 @@ import aboutCommunityImage from "./assets/images/about-community.jpg";
 import founderImage from "./assets/images/founder.jpg";
 import cofounderImage from "./assets/images/cofounder.jpg";
 import advisorImage from "./assets/images/advisor.jpg";
+
+import DonatePage from "./DonatePage";
+import VolunteerPage from "./VolunteerPage";
 
 /* =========================================================
    PARTNER LOGOS
@@ -203,12 +208,18 @@ function SectionLabel({ children, light = false }) {
   );
 }
 
-function BrandLogo({ footer = false }) {
+function BrandLogo({ footer = false, onNavigate }) {
   return (
     <a
-      href="#home"
+      href="/#home"
       className={`brand-logo ${footer ? "footer-logo" : ""}`}
       aria-label="Tek-Shakti Foundation Home"
+      onClick={(event) => {
+        if (!onNavigate) return;
+
+        event.preventDefault();
+        onNavigate("/", "home");
+      }}
     >
       <img src={tekshaktiLogo} alt="Tek-Shakti Foundation" />
     </a>
@@ -460,10 +471,109 @@ function PartnerCarousel({ logos }) {
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeNav, setActiveNav] = useState("");
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
+  const [pendingSection, setPendingSection] = useState(null);
+
+  const isDonatePage = currentPath === "/donate";
+
+  const isVolunteerPage =
+    currentPath === "/join-us" ||
+    currentPath === "/be-a-part" ||
+    currentPath === "/be-a-part-of-tekshakti";
 
   const closeMenu = () => {
     setMenuOpen(false);
   };
+
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+
+    if (!section) return;
+
+    section.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const scrollAfterRender = (sectionId) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const section = document.getElementById(sectionId);
+
+        if (section) {
+          section.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      });
+    });
+  };
+
+  const handleNavigate = (path, sectionId = null) => {
+    if (sectionId) {
+      if (path === "/" && currentPath === "/") {
+        scrollToSection(sectionId);
+        setActiveNav(sectionId === "contact" ? "contact" : "");
+        closeMenu();
+        return;
+      }
+
+setPendingSection(sectionId);
+
+history.pushState({}, "", path);
+
+setCurrentPath(path);
+      setActiveNav(sectionId === "contact" ? "contact" : "");
+      closeMenu();
+      return;
+    }
+
+    if (path === currentPath) {
+      closeMenu();
+      return;
+    }
+
+    history.pushState({}, "", path);
+    setCurrentPath(path);
+    setActiveNav(path === "/donate" ? "donate" : path === "/join-us" ? "join" : "");
+    closeMenu();
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+      setPendingSection(null);
+      closeMenu();
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+useEffect(() => {
+  if (currentPath !== "/" || !pendingSection) return;
+
+  const scrollToTarget = () => {
+    const element = document.getElementById(pendingSection);
+
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      setPendingSection(null);
+    } else {
+      requestAnimationFrame(scrollToTarget);
+    }
+  };
+
+  requestAnimationFrame(scrollToTarget);
+}, [currentPath, pendingSection]);
 
   return (
     <div className="website">
@@ -473,7 +583,7 @@ function App() {
 
       <header className="navbar">
         <div className="container navbar-inner">
-          <BrandLogo />
+          <BrandLogo onNavigate={handleNavigate} />
 
           <button
             type="button"
@@ -484,39 +594,133 @@ function App() {
             {menuOpen ? <X size={27} /> : <Menu size={27} />}
           </button>
 
-          <nav className={menuOpen ? "nav-links open" : "nav-links"}>
-            <a href="#home" onClick={closeMenu}>
-              Home
-            </a>
+<nav className={menuOpen ? "nav-links open" : "nav-links"}>
+  {/* LEFT SIDE NAVIGATION */}
 
-            <a href="#about" onClick={closeMenu}>
-              About Us
-            </a>
+  <div className="navbar-left-links">
+    <a
+      href="/#home"
+      onClick={(event) => {
+        event.preventDefault();
+        handleNavigate("/", "home");
+      }}
+    >
+      Home
+    </a>
 
-          <a href="/events" onClick={closeMenu}>
+    <a
+      href="/#about"
+      onClick={(event) => {
+        event.preventDefault();
+        handleNavigate("/", "about");
+      }}
+    >
+      About Us
+    </a>
+
+<a
+  href="/#events"
+  onClick={(event) => {
+    event.preventDefault();
+    handleNavigate("/", "events");
+  }}
+>
   Events
 </a>
 
-            <a href="#training" onClick={closeMenu}>
-              Semiconductor Skill Training Program
-            </a>
+    <a
+      href="/#training"
+      onClick={(event) => {
+        event.preventDefault();
+        handleNavigate("/", "training");
+      }}
+    >
+      Semiconductor Skill Training Program
+    </a>
 
-            <a href="#contact" onClick={closeMenu}>
-              Contact Us
-            </a>
+    <a
+      href="/#contact"
+      onClick={(event) => {
+        event.preventDefault();
+        handleNavigate("/", "contact");
+      }}
+    >
+      Contact Us
+    </a>
+  </div>
 
-            <a
-              href="#contact"
-              className="get-in-touch-button"
-              onClick={closeMenu}
-            >
-              Get in Touch
-            </a>
-          </nav>
+  {/* RIGHT SIDE ACTION BUTTONS */}
+
+  <div className="navbar-right-actions">
+    <a
+      href="/donate"
+      className={`navbar-highlight-link donate-link ${
+        activeNav === "donate" ? "active" : ""
+      }`}
+      onClick={(event) => {
+        event.preventDefault();
+        handleNavigate("/donate");
+      }}
+    >
+      <span className="navbar-highlight-icon">
+        <HeartHandshake size={24} />
+      </span>
+
+      <span className="navbar-highlight-content">
+        <strong>Donate Us</strong>
+        <small>Support our mission</small>
+      </span>
+
+      <ChevronDown
+        size={16}
+        className="navbar-highlight-chevron"
+      />
+    </a>
+
+    <a
+      href="/join-us"
+      className={`navbar-highlight-link join-link ${
+        activeNav === "join" ? "active" : ""
+      }`}
+      onClick={(event) => {
+        event.preventDefault();
+        handleNavigate("/join-us");
+      }}
+    >
+      <span className="navbar-highlight-icon">
+        <Users size={24} />
+      </span>
+
+      <span className="navbar-highlight-content">
+        <strong>Be a Part of Tek-Shakti</strong>
+        <small>Join our community</small>
+      </span>
+
+      <ChevronDown
+        size={16}
+        className="navbar-highlight-chevron"
+      />
+    </a>
+  </div>
+</nav>
         </div>
       </header>
 
-      <main>
+      <div className="app-page-content">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPath}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {isDonatePage ? (
+              <DonatePage />
+            ) : isVolunteerPage ? (
+              <VolunteerPage />
+            ) : (
+              <main>
         {/* =====================================================
             HERO SECTION
         ====================================================== */}
@@ -986,9 +1190,13 @@ function App() {
           </div>
         </section>
 
-        <PartnerCarousel logos={partnerLogos} />
+     <PartnerCarousel logos={partnerLogos} />
 
-      </main>
+              </main>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       {/* =====================================================
           FOOTER
@@ -1035,11 +1243,11 @@ function App() {
 
           <div className="footer-column">
             <h3>Quick Links</h3>
-            <a href="#home">Home</a>
-            <a href="#about">About Us</a>
+            <a href="/#home">Home</a>
+            <a href="/#about">About Us</a>
             <a href="/events">Events</a>
-            <a href="#training">Training Program</a>
-            <a href="#contact">Contact Us</a>
+            <a href="/#training">Training Program</a>
+            <a href="/#contact">Contact Us</a>
           </div>
 
           <div className="footer-column">
@@ -1067,7 +1275,15 @@ function App() {
               Your support helps us empower more learners and communities.
             </p>
 
-            <a href="#contact">Get Involved</a>
+            <a
+              href="/donate"
+              onClick={(event) => {
+                event.preventDefault();
+                handleNavigate("/donate");
+              }}
+            >
+              Get Involved
+            </a>
           </div>
         </div>
 

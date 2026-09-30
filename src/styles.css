@@ -24,15 +24,47 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 115px;
 }
 
 body {
+  margin: 0;
   font-family: "Inter", sans-serif;
   font-size: 16px;
   line-height: 1.6;
   color: var(--text);
   background: var(--background);
   overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#root {
+  min-height: 100vh;
+  overflow: visible;
+}
+
+.navbar,
+.main-navbar,
+.site-navbar,
+header {
+  position: sticky;
+  top: 0;
+  z-index: 99999;
+}
+
+.app-page-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+#home,
+#about,
+#training,
+#contact,
+#donation-form,
+#volunteer-form {
+  scroll-margin-top: 115px;
 }
 
 img {
@@ -107,7 +139,7 @@ textarea {
   white-space: nowrap;
 }
 
-.nav-links > a:not(.get-in-touch-button)::after {
+.nav-links > a::after {
   content: "";
   position: absolute;
   left: 0;
@@ -121,14 +153,6 @@ textarea {
 
 .nav-links > a:hover::after {
   width: 100%;
-}
-
-.get-in-touch-button {
-  padding: 12px 18px;
-  border-radius: 10px;
-  color: white !important;
-  background: linear-gradient(90deg, var(--purple), var(--purple-light));
-  box-shadow: 0 10px 25px rgba(88, 39, 231, 0.22);
 }
 
 .mobile-menu-button {
@@ -1705,10 +1729,6 @@ textarea {
     font-size: 15px;
   }
 
-  .get-in-touch-button {
-    width: auto !important;
-  }
-
   .hero-layout,
   .story-layout,
   .contact-layout {
@@ -1853,5 +1873,454 @@ textarea {
 
   .hero-image {
     min-height: 340px;
+  }
+}
+
+/* =========================================================
+   FINAL SPLIT NAVBAR DESIGN
+   LEFT: SIMPLE LINKS
+   RIGHT: HIGHLIGHTED ACTION BUTTONS
+========================================================= */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid rgba(8, 16, 45, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.navbar .navbar-inner {
+  width: min(calc(100% - 28px), 1680px);
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.navbar .brand-logo {
+  flex: 0 0 auto;
+}
+
+.navbar .brand-logo img {
+  width: 190px;
+  height: 62px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+/* Complete navigation area */
+
+.navbar .nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* =========================================================
+   LEFT NAVIGATION LINKS
+========================================================= */
+
+.navbar-left-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 28px;
+  flex: 0 1 auto;
+}
+
+.navbar-left-links > a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 8px 0;
+  color: var(--navy);
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+/* Keep Training Program on one line */
+
+.navbar-left-links > a:nth-child(4) {
+  max-width: none;
+  white-space: nowrap;
+}
+
+/* Animated underline */
+
+.navbar-left-links > a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  width: 0;
+  height: 3px;
+  border-radius: 20px;
+  background: linear-gradient(
+    90deg,
+    var(--purple),
+    var(--purple-light)
+  );
+  transform: translateX(-50%);
+  transition: width 0.25s ease;
+}
+
+.navbar-left-links > a:hover {
+  color: var(--purple);
+  transform: translateY(-1px);
+}
+
+.navbar-left-links > a:hover::after,
+.navbar-left-links > a:focus-visible::after {
+  width: 100%;
+}
+
+.navbar-left-links > a:focus-visible {
+  color: var(--purple);
+  outline: none;
+}
+
+/* =========================================================
+   RIGHT ACTION GROUP
+========================================================= */
+
+.navbar-right-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-left: 12px;
+  flex: 0 0 auto;
+}
+
+/* Common Donate and Join design */
+
+.navbar .navbar-highlight-link {
+  position: relative;
+  width: fit-content;
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.navbar .navbar-highlight-link::before,
+.navbar .navbar-highlight-link::after {
+  display: none;
+}
+
+.navbar .navbar-highlight-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.navbar .navbar-highlight-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.2;
+}
+
+.navbar .navbar-highlight-content strong {
+  color: #ffffff;
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.navbar .navbar-highlight-content small {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.navbar .navbar-highlight-chevron {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: #ffffff;
+  transition: transform 0.25s ease;
+}
+
+/* =========================================================
+   DONATE US — ALWAYS PINK
+========================================================= */
+
+.navbar .donate-link {
+  width: fit-content;
+  color: #ffffff !important;
+  background: linear-gradient(
+    135deg,
+    #f04f8d 0%,
+    #d82f73 52%,
+    #b82564 100%
+  );
+  box-shadow:
+    0 8px 18px rgba(205, 43, 109, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.navbar .donate-link:hover,
+.navbar .donate-link.active,
+.navbar .donate-link:focus-visible {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(
+    135deg,
+    #f04f8d 0%,
+    #d82f73 52%,
+    #b82564 100%
+  );
+  outline: none;
+  transform: translateY(-3px);
+  box-shadow:
+    0 16px 34px rgba(205, 43, 109, 0.36),
+    0 0 0 4px rgba(235, 62, 132, 0.13);
+}
+
+/* =========================================================
+   BE A PART — ALWAYS PURPLE
+========================================================= */
+
+.navbar .join-link {
+  width: fit-content;
+  color: #ffffff !important;
+  background: linear-gradient(
+    135deg,
+    #5420dc 0%,
+    #350bb3 55%,
+    #25068c 100%
+  );
+  box-shadow:
+    0 8px 18px rgba(48, 10, 158, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.navbar .join-link:hover,
+.navbar .join-link.active,
+.navbar .join-link:focus-visible {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(
+    135deg,
+    #5420dc 0%,
+    #350bb3 55%,
+    #25068c 100%
+  );
+  outline: none;
+  transform: translateY(-3px);
+  box-shadow:
+    0 16px 34px rgba(48, 10, 158, 0.37),
+    0 0 0 4px rgba(88, 39, 231, 0.14);
+}
+
+.navbar .navbar-highlight-link:hover .navbar-highlight-chevron,
+.navbar .navbar-highlight-link.active .navbar-highlight-chevron {
+  transform: translateY(2px);
+}
+
+/* =========================================================
+   MEDIUM LAPTOP SCREENS
+========================================================= */
+
+@media (max-width: 1500px) {
+  .navbar .navbar-inner {
+    width: min(calc(100% - 18px), 1500px);
+    gap: 14px;
+  }
+
+  .navbar .brand-logo img {
+    width: 154px;
+    height: 54px;
+  }
+
+  .navbar .nav-links {
+    gap: 12px;
+  }
+
+.navbar-left-links {
+  gap: 18px;
+}
+
+.navbar-left-links > a {
+  font-size: 13px;
+}
+
+.navbar-left-links > a:nth-child(4) {
+  max-width: none;
+  white-space: nowrap;
+}
+
+  .navbar-right-actions {
+    gap: 7px;
+    margin-left: auto;
+  }
+
+  .navbar .navbar-highlight-link {
+    min-height: 48px;
+    gap: 7px;
+    padding: 6px 10px;
+  }
+
+  .navbar .navbar-highlight-icon {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .navbar .navbar-highlight-content strong {
+    font-size: 9.5px;
+  }
+
+  .navbar .navbar-highlight-content small {
+    font-size: 7px;
+  }
+
+  .navbar .donate-link {
+    width: fit-content;
+  }
+
+  .navbar .join-link {
+    width: fit-content;
+  }
+}
+
+/* =========================================================
+   MOBILE NAVBAR
+========================================================= */
+
+@media (max-width: 880px) {
+  .navbar .navbar-inner {
+    width: min(calc(100% - 30px), 1320px);
+    min-height: 82px;
+  }
+
+  .navbar .brand-logo img {
+    width: 175px;
+    height: 58px;
+  }
+
+  .navbar .mobile-menu-button {
+    position: relative;
+    z-index: 1002;
+    display: block;
+  }
+
+  .navbar .nav-links {
+    position: fixed;
+    z-index: 1001;
+    top: 0;
+    right: -100%;
+    width: min(370px, 90vw);
+    height: 100vh;
+    padding: 105px 24px 35px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 20px;
+    overflow-y: auto;
+    background: #ffffff;
+    box-shadow: -15px 0 40px rgba(15, 20, 60, 0.14);
+    transition: right 0.3s ease;
+  }
+
+  .navbar .nav-links.open {
+    right: 0;
+  }
+
+  .navbar-left-links {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+  }
+
+  .navbar-left-links > a {
+    width: 100%;
+    min-height: 48px;
+    justify-content: flex-start;
+    padding: 10px 4px;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .navbar-left-links > a:nth-child(4) {
+    max-width: none;
+  }
+
+  .navbar-left-links > a::after {
+    left: 0;
+    bottom: 3px;
+    transform: none;
+  }
+
+  .navbar-left-links > a:hover::after,
+  .navbar-left-links > a:focus-visible::after {
+    width: 55px;
+  }
+
+  .navbar-right-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 11px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .navbar .navbar-highlight-link {
+    width: 100%;
+    min-width: 0;
+    min-height: 70px;
+    padding: 10px 12px;
+  }
+
+  .navbar .navbar-highlight-icon {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .navbar .navbar-highlight-content strong {
+    font-size: 13px;
+  }
+
+  .navbar .navbar-highlight-content small {
+    font-size: 9px;
   }
 }
